@@ -37,6 +37,13 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Resource
     PasswordEncoder passwordEncoder;
 
+    /**
+     * 根据用户名加载用户信息
+     *
+     * @param username 用户名
+     * @return 用户信息
+     * @throws UsernameNotFoundException 如果用户不存在
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account account = this.findAccountByNameOrEmail(username);
@@ -50,14 +57,28 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .build();
     }
 
+    /**
+     * 根据用户名或邮箱查找账户
+     *
+     * @param text 用户名或邮箱
+     * @return 账户信息
+     */
     @Override
     public Account findAccountByNameOrEmail(String text) {
         return this.query()
-                .eq("username",text).or()
+                .eq("username", text).or()
                 .eq("email", text)
                 .one();
     }
 
+    /**
+     * 注册邮箱验证码
+     *
+     * @param type  类型
+     * @param email 邮箱
+     * @param ip    ip地址
+     * @return 结果
+     */
     @Override
     public String registerEmailVerifyCode(String type, String email, String ip) {
         synchronized (ip.intern()) {
@@ -73,54 +94,90 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
     }
 
+    /**
+     * 注册邮箱账户
+     *
+     * @param vo 注册信息
+     * @return 结果
+     */
     @Override
     public String registerEmailAccount(EmailRegisterVO vo) {
         String email = vo.getEmail();
         String username = vo.getUsername();
         String code = stringRedisTemplate.opsForValue().get(Const.VERIFY_EMAIL_DATA + email);
         if (code == null) return "请获取验证码!";
-        if(!code.equals(vo.getCode())) return "验证码输入错误！";
-        if(this.existEmail(email)) return "邮箱已被注册！";
-        if(this.existUsername(username)) return "用户名已被注册！";
+        if (!code.equals(vo.getCode())) return "验证码输入错误！";
+        if (this.existEmail(email)) return "邮箱已被注册！";
+        if (this.existUsername(username)) return "用户名已被注册！";
         String password = passwordEncoder.encode(vo.getPassword());
-        Account account = new Account(null, username, password, email,"user", new Date());
+        Account account = new Account(null, username, password, email, "user", new Date());
         if (this.save(account)) {
             stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + email);
             return null;
-        }else {
+        } else {
             return "内部错误！";
         }
     }
 
+    /**
+     * 重置确认
+     *
+     * @param vo 重置信息
+     * @return 结果
+     */
     @Override
     public String resetConfirm(ConfirmResetVO vo) {
         String email = vo.getEmail();
         String code = stringRedisTemplate.opsForValue().get(Const.VERIFY_EMAIL_DATA + email);
         if (code == null) return "请获取验证码!";
-        if(!code.equals(vo.getCode())) return "验证码输入错误！";
+        if (!code.equals(vo.getCode())) return "验证码输入错误！";
         return null;
     }
 
+    /**
+     * 重置邮箱账户密码
+     *
+     * @param vo 重置信息
+     * @return 结果
+     */
     @Override
     public String resetEmailAccountPassword(EmailResetVO vo) {
         String email = vo.getEmail();
-        String verify = this.resetConfirm(new ConfirmResetVO(email,vo.getCode()));
-        if(verify!=null) return verify;
+        String verify = this.resetConfirm(new ConfirmResetVO(email, vo.getCode()));
+        if (verify != null) return verify;
         String password = passwordEncoder.encode(vo.getPassword());
-        boolean update = this.update().eq("email",email).set("password",password).update();
-        if(update) stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + email);
+        boolean update = this.update().eq("email", email).set("password", password).update();
+        if (update) stringRedisTemplate.delete(Const.VERIFY_EMAIL_DATA + email);
         return null;
     }
 
+    /**
+     * 验证邮箱
+     *
+     * @param ip ip地址
+     * @return 结果
+     */
     private boolean verifyEmail(String ip) {
         String key = Const.VERIFY_EMAIL_LIMIT + ip;
         return flowUtils.limitOnceCheck(key, 60);
     }
 
+    /**
+     * 判断邮箱是否存在
+     *
+     * @param email 邮箱
+     * @return 结果
+     */
     private boolean existEmail(String email) {
         return this.baseMapper.exists(Wrappers.<Account>query().eq("email", email));
     }
 
+    /**
+     * 判断用户名是否存在
+     *
+     * @param username 用户名
+     * @return 结果
+     */
     private boolean existUsername(String username) {
         return this.baseMapper.exists(Wrappers.<Account>query().eq("username", username));
     }

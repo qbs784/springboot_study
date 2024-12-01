@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import {User, Lock} from '@element-plus/icons-vue'
+import {Lock, User} from '@element-plus/icons-vue'
 import router from "@/router";
 import {reactive, ref} from "vue";
 import {login} from '@/net'
@@ -63,16 +63,16 @@ const form = reactive({
 
 const rules = {
   username: [
-    { required: true, message: '请输入用户名' }
+    {required: true, message: '请输入用户名'}
   ],
   password: [
-    { required: true, message: '请输入密码'}
+    {required: true, message: '请输入密码'}
   ]
 }
 
 function userLogin() {
   formRef.value.validate((isValid) => {
-    if(isValid) {
+    if (isValid) {
       login(form.username, form.password, form.remember, () => router.push("/index"))
     }
   });
