@@ -1,7 +1,7 @@
 /*
  Navicat MySQL Data Transfer
 
- Source Server         : 本地测试环境
+ Source Server         : 学习专用
  Source Server Type    : MySQL
  Source Server Version : 80034 (8.0.34)
  Source Host           : localhost:3306
@@ -11,7 +11,6 @@
  Target Server Version : 80034 (8.0.34)
  File Encoding         : 65001
 
- Date: 07/08/2023 00:03:19
 */
 
 SET NAMES utf8mb4;
