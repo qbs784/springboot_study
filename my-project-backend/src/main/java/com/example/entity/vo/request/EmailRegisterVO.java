@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
  * 该类包含用于验证电子邮件地址、验证码、用户名和密码的字段。
  */
 @Data
-public class EmailRegisterVO {
+public class    EmailRegisterVO {
     /**
      * 用户的电子邮件地址。
      * 该字段必须是有效的电子邮件地址，并且长度至少为 4 个字符。

@@ -35,4 +35,14 @@ public class Const {
      * 流量限制阻塞的 Redis 键前缀
      */
     public final static String FLOW_LIMIT_BLOCK = "flow:block:";
+
+    //请求自定义属性
+    public final static String ATTR_USER_ID = "id";
+
+    public final static String MQ_MAIL = "mail";
+
+    //用户角色
+    public final static String ROLE_DEFAULT = "user";
+    public final static String ROLE_ADMIN = "admin";
+    public static final String FORUM_IMAGE_COUNTER = "forum:image:";
 }

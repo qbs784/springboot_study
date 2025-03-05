@@ -17,5 +17,12 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/test
     username: root
-    password: "021201"
+    password: "20021201"
     driver-class-name: com.mysql.cj.jdbc.Driver
+  web:
+    verify:
+      mail-limit: 60
+  minio:
+    endpoint: "http://localhost:9000"
+    username: "minio"
+    password: "password"

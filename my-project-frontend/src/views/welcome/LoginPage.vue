@@ -7,7 +7,7 @@
     <div style="margin-top: 50px">
       <el-form :model="form" :rules="rules" ref="formRef">
         <el-form-item prop="username">
-          <el-input v-model="form.username" maxlength="10" type="text" placeholder="用户名/邮箱">
+          <el-input v-model="form.username" maxlength="20" type="text" placeholder="用户名/邮箱">
             <template #prefix>
               <el-icon>
                 <User/>
@@ -49,10 +49,11 @@
 </template>
 
 <script setup>
-import {Lock, User} from '@element-plus/icons-vue'
+import {User, Lock} from '@element-plus/icons-vue'
 import router from "@/router";
-import {reactive, ref} from "vue";
+import {inject, reactive, ref} from "vue";
 import {login} from '@/net'
+import {apiUserInfo} from "@/net/api/user";
 
 const formRef = ref()
 const form = reactive({
@@ -63,17 +64,22 @@ const form = reactive({
 
 const rules = {
   username: [
-    {required: true, message: '请输入用户名'}
+    { required: true, message: '请输入用户名' }
   ],
   password: [
-    {required: true, message: '请输入密码'}
+    { required: true, message: '请输入密码'}
   ]
 }
 
+const loading = inject('userLoading')
+
 function userLogin() {
   formRef.value.validate((isValid) => {
-    if (isValid) {
-      login(form.username, form.password, form.remember, () => router.push("/index"))
+    if(isValid) {
+      login(form.username, form.password, form.remember, () => {
+          apiUserInfo(loading)
+          router.push("/index")
+      })
     }
   });
 }
